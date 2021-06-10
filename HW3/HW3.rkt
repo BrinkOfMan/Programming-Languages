@@ -1,0 +1,110 @@
+#lang racket
+
+;Ethan Brinkman
+;HW3: Due 2/26 8 AM
+
+;Score: 41/42
+
+;Exercise 1.15
+;(duple n x) returns a list containing n copies of x
+;7/7
+
+(define duple
+  (lambda (n x)
+    (cond
+      ((zero? n) '())
+      (#t(cons x (duple (- n 1) x))))))
+
+(duple 2 3)
+;'(3 3)
+(duple 4 '(ha ha))
+;'((ha ha) (ha ha) (ha ha) (ha ha))
+(duple 0 '(blah))
+;'()
+
+;Exercise 1.17
+;(down lst) wraps parentheses around each top-level element of lst
+;7/7
+
+(define down
+  (lambda (ls)
+    (map list ls)))
+
+(down '(1 2 3))
+;'((1) (2) (3))
+(down '((a) (fine) (idea)))
+;'(((a)) ((fine)) ((idea)))
+(down '(a (more (complicated)) object))
+;'((a) ((more (complicated))) (object))
+
+;Exercise 1.20
+;(count-occurrences s slist) returns the number of occurrences of s in slist
+;7/7
+
+(define count-occurrences
+  (lambda (s slist)
+    (cond
+      ((null? slist) 0)
+      ((list? (car slist)) (+ (count-occurrences s (car slist)) (count-occurrences s (cdr slist))))
+      ((equal? s (car slist)) (+ 1 (count-occurrences s (cdr slist))))
+      (#t (count-occurrences s (cdr slist))))))
+      
+(count-occurrences 'x '((f x) f (((x z) x))))
+;3
+(count-occurrences 'x '((f x) f (((x z) () x))))
+;3
+(count-occurrences 'w '((f x) f (((x z) x))))
+;0
+
+;Exercise 21
+;(product sos1 sos2), where sos1 and sos2 are each a list of sumbols without repetitions,
+;returns a list of 2-lists that represents the Cartesian product of sos1 and sos2.
+;The 2-lists may appear in any order
+;6/7 - need 2 test cases
+
+(define product
+  (lambda (sos1 sos2)
+    (cond
+      ((null? sos1) '())
+      ((null? sos2) '())
+      (#t(append (map (lambda (s2) (list (car sos1) s2)) sos2) (product (cdr sos1) sos2))))))
+
+(product '(a b c) '(x y))
+;'((a x) (a y) (b x) (b y) (c x) (c y))
+
+
+;Exercise 23
+;(list-index pred lst) returns the 0-based position of the first element of lst that satisfies the predicate pred.
+;If no elemenet of lst satisfies the predicate, the list-index returns #f
+;7/7
+
+(define list-index
+  (lambda (pred lst)
+    (cond
+      ((null? lst) #f)
+      ((pred (car lst)) 0)
+      (#t (if (list-index pred (cdr lst)) (+ 1 (list-index pred (cdr lst))) ;Probably a better way around this
+                                                           #f)))));But the if statement guards against adding a boolean
+
+(list-index number? '(a 2 (1 3) b 7))
+;1
+(list-index symbol? '(a (b c) 17 foo))
+;0
+(list-index symbol? '(1 2 (a b) 3))
+;#f
+
+;Exercise 24
+;(every? pred lst) returns #f if any element of lst fails to satisfy pred, and returns #t otherwise
+;7/7
+
+(define every?
+  (lambda (pred lst)
+    (cond
+      ((null? lst) #t)
+      ((pred (car lst)) (every? pred (cdr lst)))
+      (else #f))))
+
+(every? number? '(a b c 3 e))
+;#f
+(every? number? '(1 2 3 5 4))
+;#t

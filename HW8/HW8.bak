@@ -1,0 +1,24 @@
+#lang racket
+(require(lib "eopl.ss" "eopl"))
+
+
+(define-datatype lc-exp lc-exp?
+  (var-exp
+   (var symbol?))
+  (lambda-exp
+   (bound-var symbol?)
+   (body lc-exp?))
+  (app-exp
+   (rator lc-exp?)
+   (rand lc-exp?)))
+
+
+(define parse-expression
+  (lambda (datum)
+    (cond
+      ((symbol? datum) (var-exp datum))
+    ((equal? (car datum) 'lambda)(lambda-exp
+                                  (caadr datum)
+                                  (parse-expression (caddr datum))))
+    (#t (app-exp(parse-expression (car datum))
+                (parse-expression (cadr datum)))))))
